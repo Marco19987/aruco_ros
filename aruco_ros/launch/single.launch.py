@@ -14,7 +14,7 @@ def launch_setup(context, *args, **kwargs):
         'marker_size': LaunchConfiguration('marker_size'),
         'marker_id': LaunchConfiguration('marker_id'),
         'reference_frame': LaunchConfiguration('reference_frame'),
-        'camera_frame': 'stereo_gazebo_' + eye + '_camera_optical_frame',
+        'camera_frame': LaunchConfiguration('camera_frame'),
         'marker_frame': LaunchConfiguration('marker_frame'),
         'corner_refinement': LaunchConfiguration('corner_refinement'),
     }
@@ -65,6 +65,11 @@ def generate_launch_description():
         choices=['NONE', 'HARRIS', 'LINES', 'SUBPIX'],
     )
 
+    camera_frame_arg = DeclareLaunchArgument(  
+        'camera_frame', default_value='camera_frame',
+        description='Camera frame. '
+    )
+
     # Create the launch description and populate
     ld = LaunchDescription()
 
@@ -74,6 +79,7 @@ def generate_launch_description():
     ld.add_action(marker_frame_arg)
     ld.add_action(reference_frame)
     ld.add_action(corner_refinement_arg)
+    ld.add_action(camera_frame_arg)
 
     ld.add_action(OpaqueFunction(function=launch_setup))
 

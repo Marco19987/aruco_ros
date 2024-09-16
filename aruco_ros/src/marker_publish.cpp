@@ -134,6 +134,49 @@ public:
       camParam_ = aruco::CameraParameters();
     }
 
+    // Set up the marker detector
+    this->declare_parameter<float>("min_marker_size", 0.02);
+    this->declare_parameter<std::string>("detection_mode", "");
+
+    float min_marker_size;  // percentage of image area
+    this->get_parameter_or<float>("min_marker_size", min_marker_size, 0.02);
+
+    std::string detection_mode;
+    this->get_parameter_or<std::string>("detection_mode", detection_mode, "DM_FAST");
+    if (detection_mode == "DM_FAST") {
+      mDetector_.setDetectionMode(aruco::DM_FAST, min_marker_size);
+    } else if (detection_mode == "DM_VIDEO_FAST") {
+      mDetector_.setDetectionMode(aruco::DM_VIDEO_FAST, min_marker_size);
+    } else {
+      // Aruco version 2 mode
+      mDetector_.setDetectionMode(aruco::DM_NORMAL, min_marker_size);
+    }
+
+    RCLCPP_INFO_STREAM(
+      this->get_logger(), "Marker size min: " << min_marker_size << " of image area");
+    RCLCPP_INFO_STREAM(this->get_logger(), "Detection mode: " << detection_mode);
+
+
+
+    aruco::MarkerDetector::Params params = mDetector_.getParameters();
+    std::string thresh_method;
+    switch (params.thresMethod) {
+      case aruco::MarkerDetector::ThresMethod::THRES_ADAPTIVE:
+        thresh_method = "THRESH_ADAPTIVE";
+        break;
+      case aruco::MarkerDetector::ThresMethod::THRES_AUTO_FIXED:
+        thresh_method = "THRESH_AUTO_FIXED";
+        break;
+      default:
+        thresh_method = "UNKNOWN";
+        break;
+    }
+    // Print parameters of ArUco marker detector:
+    RCLCPP_INFO_STREAM(this->get_logger(), "Threshold method: " << thresh_method);
+
+
+    
+
     image_pub_ = it_->advertise(this->get_name() + std::string("/result"), 1);
     debug_pub_ = it_->advertise(this->get_name() + std::string("/debug"), 1);
     marker_pub_ = subNode->create_publisher<aruco_msgs::msg::MarkerArray>("markers", 100);
