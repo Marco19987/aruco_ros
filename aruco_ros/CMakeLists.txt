@@ -24,9 +24,13 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
     visualization_msgs
 )
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp_components REQUIRED)
+
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
+
+
 
 #generate_dynamic_reconfigure_options(
 #  cfg/ArucoThreshold.cfg
@@ -93,6 +97,33 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+add_library(marker_publish_component SHARED src/marker_publish_composable.cpp src/aruco_ros_utils.cpp)
+
+target_include_directories(marker_publish_component
+  PUBLIC
+  include)
+
+target_include_directories(marker_publish_component
+  SYSTEM PUBLIC
+  ${OpenCV_INCLUDE_DIRS}
+)
+target_link_libraries(marker_publish_component ${OpenCV_LIBRARIES})
+
+ament_target_dependencies(marker_publish_component
+  "rclcpp"
+  "rclcpp_components"
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+)
+
+rclcpp_components_register_node(
+  marker_publish_component
+    PLUGIN "ArucoMarkerPublisher"
+    EXECUTABLE marker_publisher_composable_node
+)
+
+
+
+
 #############
 ## Install ##
 #############
@@ -109,6 +140,13 @@ install(DIRECTORY include/
         DESTINATION include
         FILES_MATCHING PATTERN "*.h"
 )
+
+install(TARGETS marker_publish_component
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
+)
+
 
 foreach(dir etc launch)
     install(DIRECTORY ${dir}/
