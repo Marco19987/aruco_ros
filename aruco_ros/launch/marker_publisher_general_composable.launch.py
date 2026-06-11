@@ -39,6 +39,28 @@ def generate_launch_description():
         'DM_NORMAL, DM_VIDEO_FAST, DM_FAST'
     )
 
+    dictionary = DeclareLaunchArgument(
+        'dictionary', default_value='0',
+        description='Dictionary markers. '
+        'ALL_DICTS = 0, ARUCO_MIP_36h12 = 1, ARUCO = 2, ARUCO_MIP_25h7 = 3...CUSTOM = 14'
+    )
+    
+    #  ALL_DICTS = 0,
+    # ARUCO_MIP_36h12 = 1,  //*** recommended
+    # ARUCO = 2,            // original aruco dictionary. By default
+    # ARUCO_MIP_25h7 = 3,
+    # ARUCO_MIP_16h3 = 4,
+    # ARTAG = 5,  //
+    # ARTOOLKITPLUS = 6,
+    # ARTOOLKITPLUSBCH = 7,  //
+    # TAG16h5 = 8,
+    # TAG25h7 = 9,
+    # TAG25h9 = 10,
+    # TAG36h11 = 11,
+    # TAG36h10 = 12,   // april tags
+    # CHILITAGS = 13,  // chili tags dictionary . NOT RECOMMENDED. It has distance 0.
+    # CUSTOM = 14,  // for used defined dictionaries  (using loadFromfile).
+
     container_name_to_attach = LaunchConfiguration('container_name_to_attach')
     container_name_to_attach_arg = DeclareLaunchArgument(
         'container_name_to_attach', default_value='aruco_container',
@@ -53,6 +75,7 @@ def generate_launch_description():
     ld.add_action(reference_frame)
     ld.add_action(min_marker_size)
     ld.add_action(detection_mode)
+    ld.add_action(dictionary)
     ld.add_action(container_name_to_attach_arg)
 
 
@@ -63,6 +86,7 @@ def generate_launch_description():
             'camera_frame': LaunchConfiguration('camera_frame'),
             'min_marker_size': LaunchConfiguration('min_marker_size'),
             'detection_mode': LaunchConfiguration('detection_mode'),
+            'dictionary' : LaunchConfiguration('dictionary')
         }
 
     # ld.add_action(ComposableNodeContainer(

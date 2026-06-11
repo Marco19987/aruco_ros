@@ -177,6 +177,11 @@ public:
       // Aruco version 2 mode
       mDetector_.setDetectionMode(aruco::DM_NORMAL, min_marker_size);
     }
+    // set dictionary
+    node_->declare_parameter<int>("dictionary", 0);
+    int dict;
+    node_->get_parameter_or<int>("dictionary", dict, 0 );
+    mDetector_.setDictionary(dict);
 
     RCLCPP_INFO_STREAM(node_->get_logger(), "Marker size min: " << min_marker_size << " of image area");
     RCLCPP_INFO_STREAM(node_->get_logger(), "Detection mode: " << detection_mode);
